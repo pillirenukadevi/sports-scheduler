@@ -29,8 +29,26 @@
           </li>
           <li><a href="/logout" class="btn btn-secondary btn-sm">Sign Out</a></li>
         <% } else { %>
-          <li><a href="/sessions" class="nav-link <%= currentPath === '/sessions' ? 'active' : '' %>">Browse Sessions</a></li>
-          <li><a href="/sessions/new" class="nav-link <%= currentPath === '/sessions/new' ? 'active' : '' %>">+ Create Session</a></li>
+          <li>
+            <a href="/sessions" class="nav-link <%= currentPath === '/sessions' && (!query || !query.filter) ? 'active' : '' %>">
+              Browse Matches
+            </a>
+          </li>
+          <li>
+            <a href="/sessions?filter=my" class="nav-link <%= query && query.filter === 'my' ? 'active' : '' %>">
+              🎯 Hosted By Me
+            </a>
+          </li>
+          <li>
+            <a href="/sessions?filter=joined" class="nav-link <%= query && query.filter === 'joined' ? 'active' : '' %>">
+              🏃 Joined Matches
+            </a>
+          </li>
+          <li>
+            <a href="/sessions/new" class="btn btn-primary btn-sm">
+              + Host Match
+            </a>
+          </li>
           <li class="user-info">
             <span class="role-badge badge-player">Player</span>
             <span class="user-name"><%= currentUser.first_name %></span>

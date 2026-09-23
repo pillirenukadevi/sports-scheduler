@@ -71,6 +71,8 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error');
   res.locals.currentUser = req.user || null;
   res.locals.currentPath = req.path;
+  res.locals.currentUrl = req.originalUrl;
+  res.locals.query = req.query || {};
   next();
 });
 
