@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Session, Sport, User, SessionPlayer } = require('../models');
+const { Session, Sport, User, SessionPlayer, Sequelize } = require('../models');
+const { Op } = Sequelize;
 const { requireAuth, requirePlayer } = require('../middleware/auth');
 
 // All sessions routes require authentication
@@ -9,7 +10,7 @@ router.use(requireAuth);
 // GET /sessions - Browse sessions
 router.get('/', async (req, res, next) => {
   try {
-    const { sport, filter } = req.query;
+    const { sport, filter, search } = req.query;
     const sports = await Sport.findAll({ order: [['title', 'ASC']] });
 
     const whereClause = {};
@@ -19,6 +20,14 @@ router.get('/', async (req, res, next) => {
 
     if (filter === 'my' && req.user) {
       whereClause.creator_id = req.user.id;
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      whereClause[Op.or] = [
+        { venue: { [Op.iLike || Op.like]: `%${q}%` } },
+        { '$sport.title$': { [Op.iLike || Op.like]: `%${q}%` } }
+      ];
     }
 
     let sessions = await Session.findAll({
@@ -45,7 +54,8 @@ router.get('/', async (req, res, next) => {
       sessions,
       sports,
       selectedSport: sport || null,
-      selectedTab: filter || null
+      selectedTab: filter || null,
+      searchQuery: search || ''
     });
   } catch (err) {
     next(err);

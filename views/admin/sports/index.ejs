@@ -12,6 +12,28 @@
   </a>
 </div>
 
+<!-- Search Bar for Admin Sports Catalog -->
+<div class="search-container">
+  <div class="search-input-wrapper">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text" 
+      id="sportSearchInput"
+      class="search-input" 
+      placeholder="Search sport titles or descriptions (e.g. Cricket, Basketball, Badminton)..."
+      autocomplete="off"
+    >
+  </div>
+</div>
+
+<div id="noSportsFoundNotice" class="card" style="display: none; text-align: center; padding: 3rem 1.5rem; margin-bottom: 1.5rem;">
+  <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔍</div>
+  <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;">No Sports Found</h2>
+  <p style="color: var(--text-muted);">
+    No sport in the catalog matches your search.
+  </p>
+</div>
+
 <% if (!sports || sports.length === 0) { %>
   <div class="card" style="text-align: center; padding: 3.5rem 1.5rem;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">🏀</div>
@@ -22,13 +44,18 @@
     <a href="/sports/new" class="btn btn-primary">Create Your First Sport</a>
   </div>
 <% } else { %>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+  <div id="sportsCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
     <% sports.forEach(sport => { %>
-      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+      <div 
+        class="card sport-item-card" 
+        data-title="<%= sport.title.toLowerCase() %>"
+        data-desc="<%= (sport.description || '').toLowerCase() %>"
+        style="display: flex; flex-direction: column; justify-content: space-between; position: relative;"
+      >
         <div>
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
             <h3 style="font-size: 1.35rem; color: #fff;"><%= sport.title %></h3>
-            <span class="role-badge" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3);">
+            <span class="role-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);">
               <%= sport.sessions ? sport.sessions.length : 0 %> Sessions
             </span>
           </div>
@@ -58,5 +85,37 @@
     <% }) %>
   </div>
 <% } %>
+
+<!-- Client-side instant filter script for sports -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('sportSearchInput');
+    const cards = document.querySelectorAll('.sport-item-card');
+    const notice = document.getElementById('noSportsFoundNotice');
+
+    if (searchInput && cards.length > 0) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const title = card.getAttribute('data-title') || '';
+          const desc = card.getAttribute('data-desc') || '';
+
+          if (title.includes(val) || desc.includes(val)) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (notice) {
+          notice.style.display = (visibleCount === 0 && val.length > 0) ? 'block' : 'none';
+        }
+      });
+    }
+  });
+</script>
 
 <%- include('../../layouts/footer') %>

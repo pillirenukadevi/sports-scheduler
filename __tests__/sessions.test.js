@@ -167,4 +167,21 @@ describe('Player Sessions & Join Rules Suite', () => {
     const check = await Session.findByPk(session.id);
     expect(check).toBeNull();
   });
+
+  it('should search sessions by sport name or venue', async () => {
+    const tennis = await Sport.create({ title: 'Tennis', description: 'Racket game' });
+    await Session.create({
+      sport_id: tennis.id,
+      creator_id: player1.id,
+      date: '2026-11-01',
+      time: '10:00',
+      venue: 'Wimbledon Center Court',
+      max_players: 4
+    });
+
+    const searchRes = await player1Agent.get('/sessions?search=Tennis');
+    expect(searchRes.status).toBe(200);
+    expect(searchRes.text).toContain('Wimbledon Center Court');
+    expect(searchRes.text).toContain('Tennis');
+  });
 });

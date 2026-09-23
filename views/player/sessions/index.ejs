@@ -4,7 +4,7 @@
   <div>
     <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Browse Sports Sessions</h1>
     <p style="color: var(--text-muted); font-size: 0.95rem;">
-      Find upcoming matches, join open rosters, or host your own game.
+      Find upcoming matches, search games by sport or venue, and join open rosters.
     </p>
   </div>
   <% if (currentUser && currentUser.role === 'player') { %>
@@ -14,23 +14,48 @@
   <% } %>
 </div>
 
+<!-- Search Bar Component -->
+<form action="/sessions" method="GET" class="search-container" id="sessionSearchForm">
+  <div class="search-input-wrapper">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text" 
+      name="search" 
+      id="sessionSearchInput"
+      class="search-input" 
+      placeholder="Search for any game (e.g. Cricket, Basketball, Football, Tennis) or venue location..."
+      value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+      autocomplete="off"
+    >
+    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+      <a href="/sessions<%= selectedSport ? '?sport=' + selectedSport : (selectedTab ? '?filter=' + selectedTab : '') %>" class="search-clear-btn" title="Clear search">&times;</a>
+    <% } %>
+  </div>
+  <% if (selectedSport) { %>
+    <input type="hidden" name="sport" value="<%= selectedSport %>">
+  <% } %>
+  <% if (selectedTab) { %>
+    <input type="hidden" name="filter" value="<%= selectedTab %>">
+  <% } %>
+</form>
+
 <!-- Sports Filter Bar -->
 <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.75rem; margin-bottom: 1.75rem;">
   <a 
-    href="/sessions" 
+    href="/sessions<%= typeof searchQuery !== 'undefined' && searchQuery ? '?search=' + encodeURIComponent(searchQuery) : '' %>" 
     class="btn btn-sm <%= !selectedSport && !selectedTab ? 'btn-primary' : 'btn-secondary' %>"
   >
     All Sports
   </a>
   <% if (currentUser && currentUser.role === 'player') { %>
     <a 
-      href="/sessions?filter=my" 
+      href="/sessions?filter=my<%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
       class="btn btn-sm <%= selectedTab === 'my' ? 'btn-primary' : 'btn-secondary' %>"
     >
       🎯 Hosted By Me
     </a>
     <a 
-      href="/sessions?filter=joined" 
+      href="/sessions?filter=joined<%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
       class="btn btn-sm <%= selectedTab === 'joined' ? 'btn-primary' : 'btn-secondary' %>"
     >
       🏃 Joined By Me
@@ -39,7 +64,7 @@
   <% if (sports && sports.length > 0) { %>
     <% sports.forEach(sport => { %>
       <a 
-        href="/sessions?sport=<%= sport.id %>" 
+        href="/sessions?sport=<%= sport.id %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
         class="btn btn-sm <%= selectedSport == sport.id ? 'btn-primary' : 'btn-secondary' %>"
       >
         <%= sport.title %>
@@ -48,12 +73,22 @@
   <% } %>
 </div>
 
+<div id="noLiveResultsNotice" class="card" style="display: none; text-align: center; padding: 3rem 1.5rem; margin-bottom: 1.5rem;">
+  <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔍</div>
+  <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;">No Matches Found</h2>
+  <p style="color: var(--text-muted);">
+    No sessions match your search keyword "<span id="searchedTermText" style="color: #fff; font-weight: 600;"></span>".
+  </p>
+</div>
+
 <% if (!sessions || sessions.length === 0) { %>
   <div class="card" style="text-align: center; padding: 4rem 1.5rem;">
     <div style="font-size: 3.5rem; margin-bottom: 1rem;">📅</div>
     <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Matching Sessions Found</h2>
     <p style="color: var(--text-muted); max-width: 450px; margin: 0 auto 1.5rem;">
-      <% if (selectedTab === 'my') { %>
+      <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+        No sessions found matching "<%= searchQuery %>". Try searching for another game like Cricket, Basketball, Soccer, or Tennis!
+      <% } else if (selectedTab === 'my') { %>
         You haven't scheduled any sessions yet. Take the initiative and host a game!
       <% } else if (selectedTab === 'joined') { %>
         You haven't joined any upcoming sessions yet. Browse open games and jump in!
@@ -66,7 +101,7 @@
     <% } %>
   </div>
 <% } else { %>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+  <div id="sessionsCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
     <% sessions.forEach(session => { %>
       <% 
         const isCreator = currentUser && session.creator_id === currentUser.id;
@@ -76,14 +111,21 @@
         const formattedDate = new Date(session.date + 'T00:00:00').toLocaleDateString(undefined, {
           weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
         });
+        const sportTitle = session.sport ? session.sport.title : 'Sport';
       %>
-      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+      <div 
+        class="card session-item-card" 
+        data-sport="<%= sportTitle.toLowerCase() %>"
+        data-venue="<%= session.venue.toLowerCase() %>"
+        data-creator="<%= session.creator ? session.creator.first_name.toLowerCase() : '' %>"
+        style="display: flex; flex-direction: column; justify-content: space-between; position: relative;"
+      >
         <div>
           <!-- Header: Sport & Badges -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
             <div>
-              <span class="role-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 0.4rem;">
-                <%= session.sport ? session.sport.title : 'Sport' %>
+              <span class="role-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); margin-bottom: 0.4rem;">
+                <%= sportTitle %>
               </span>
               <h3 style="font-size: 1.25rem; color: #fff;"><%= session.venue %></h3>
             </div>
@@ -93,7 +135,7 @@
                   Organizer
                 </span>
               <% } else if (isJoined) { %>
-                <span class="role-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <span class="role-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35);">
                   Joined
                 </span>
               <% } else if (isFull) { %>
@@ -124,12 +166,12 @@
           <div style="margin-bottom: 1.5rem;">
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
               <span style="color: var(--text-dim);">Roster Capacity</span>
-              <span style="font-weight: 700; color: <%= isFull ? '#ef4444' : '#34d399' %>;">
+              <span style="font-weight: 700; color: <%= isFull ? '#ef4444' : '#f87171' %>;">
                 <%= playerCount %> / <%= session.max_players %> Players
               </span>
             </div>
             <div style="height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-full); overflow: hidden;">
-              <div style="height: 100%; width: <%= Math.min(100, (playerCount / session.max_players) * 100) %>%; background: <%= isFull ? '#ef4444' : 'var(--primary)' %>; transition: width 0.3s ease;"></div>
+              <div style="height: 100%; width: <%= Math.min(100, (playerCount / session.max_players) * 100) %>%; background: linear-gradient(90deg, #ef4444, #f97316); transition: width 0.3s ease;"></div>
             </div>
           </div>
         </div>
@@ -162,5 +204,45 @@
     <% }) %>
   </div>
 <% } %>
+
+<!-- Client-side instant live filtering script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('sessionSearchInput');
+    const cards = document.querySelectorAll('.session-item-card');
+    const notice = document.getElementById('noLiveResultsNotice');
+    const termText = document.getElementById('searchedTermText');
+    const cardsGrid = document.getElementById('sessionsCardsGrid');
+
+    if (searchInput && cards.length > 0) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const sport = card.getAttribute('data-sport') || '';
+          const venue = card.getAttribute('data-venue') || '';
+          const creator = card.getAttribute('data-creator') || '';
+
+          if (sport.includes(val) || venue.includes(val) || creator.includes(val)) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (notice && termText) {
+          if (visibleCount === 0 && val.length > 0) {
+            termText.textContent = e.target.value;
+            notice.style.display = 'block';
+          } else {
+            notice.style.display = 'none';
+          }
+        }
+      });
+    }
+  });
+</script>
 
 <%- include('../../layouts/footer') %>
