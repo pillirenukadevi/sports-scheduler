@@ -35,12 +35,12 @@
             </a>
           </li>
           <li>
-            <a href="/sessions?filter=my" class="nav-link <%= query && query.filter === 'my' ? 'active' : '' %>">
+            <a href="/sessions/my" class="nav-link <%= currentPath === '/sessions/my' || (query && query.filter === 'my') ? 'active' : '' %>">
               🎯 Hosted By Me
             </a>
           </li>
           <li>
-            <a href="/sessions?filter=joined" class="nav-link <%= query && query.filter === 'joined' ? 'active' : '' %>">
+            <a href="/sessions/joined" class="nav-link <%= currentPath === '/sessions/joined' || (query && query.filter === 'joined') ? 'active' : '' %>">
               🏃 Joined Matches
             </a>
           </li>

@@ -34,10 +34,29 @@ module.exports = (sequelize, DataTypes) => {
       const sessionDateTime = new Date(`${this.date}T${this.time}`);
       return sessionDateTime < new Date();
     }
+
+    // Helper to get registration closing datetime
+    get closingDateTime() {
+      if (this.registration_deadline) {
+        return new Date(this.registration_deadline);
+      }
+      // Default: closes 1 hour before session match time
+      const matchDateTime = new Date(`${this.date}T${this.time}`);
+      return new Date(matchDateTime.getTime() - 60 * 60 * 1000);
+    }
+
+    // Helper to check if join window is closed
+    get isRegistrationClosed() {
+      return new Date() > this.closingDateTime;
+    }
   }
 
   Session.init(
     {
+      registration_deadline: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
       sport_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

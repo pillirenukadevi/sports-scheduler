@@ -62,6 +62,20 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// GET /sessions/my - Dedicated route for hosted sessions
+router.get('/my', requirePlayer, (req, res) => {
+  const queryParams = new URLSearchParams(req.query);
+  queryParams.set('filter', 'my');
+  res.redirect(`/sessions?${queryParams.toString()}`);
+});
+
+// GET /sessions/joined - Dedicated route for joined sessions
+router.get('/joined', requirePlayer, (req, res) => {
+  const queryParams = new URLSearchParams(req.query);
+  queryParams.set('filter', 'joined');
+  res.redirect(`/sessions?${queryParams.toString()}`);
+});
+
 // GET /sessions/new - Host a new session
 router.get('/new', requirePlayer, async (req, res, next) => {
   try {
@@ -80,16 +94,26 @@ router.get('/new', requirePlayer, async (req, res, next) => {
 
 // POST /sessions - Create new session
 router.post('/', requirePlayer, async (req, res) => {
-  const { sport_id, date, time, venue, max_players } = req.body;
+  const { sport_id, date, time, venue, max_players, close_date, close_time } = req.body;
 
   try {
+    let registration_deadline = null;
+    if (close_date && close_time) {
+      registration_deadline = new Date(`${close_date}T${close_time}`);
+    } else if (date && time) {
+      // Default: 1 hour before match
+      const matchTime = new Date(`${date}T${time}`);
+      registration_deadline = new Date(matchTime.getTime() - 60 * 60 * 1000);
+    }
+
     const session = await Session.create({
       sport_id: sport_id ? parseInt(sport_id, 10) : null,
       creator_id: req.user.id,
       date,
       time,
       venue,
-      max_players: max_players ? parseInt(max_players, 10) : 10
+      max_players: max_players ? parseInt(max_players, 10) : 10,
+      registration_deadline
     });
 
     // Automatically enroll the creator as the first player
@@ -109,7 +133,7 @@ router.post('/', requirePlayer, async (req, res) => {
       req.flash('error', 'Could not create session. Please verify all required fields.');
     }
 
-    req.flash('formData', { sport_id, date, time, venue, max_players });
+    req.flash('formData', { sport_id, date, time, venue, max_players, close_date, close_time });
     return res.redirect('/sessions/new');
   }
 });
@@ -149,6 +173,12 @@ router.post('/:id/join', requirePlayer, async (req, res, next) => {
     if (!session) {
       req.flash('error', 'Session not found.');
       return res.redirect('/sessions');
+    }
+
+    // Check if registration deadline has passed
+    if (session.isRegistrationClosed) {
+      req.flash('error', 'Registration for this session has closed. The join deadline has passed.');
+      return res.redirect(`/sessions/${session.id}`);
     }
 
     // Check if player has already joined (Duplicate join prevention)

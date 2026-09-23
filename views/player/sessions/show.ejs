@@ -49,24 +49,37 @@
         </div>
       <% } %>
 
+      <% 
+        const isClosed = session.isRegistrationClosed;
+        const closeDateObj = session.closingDateTime;
+        const formattedClose = closeDateObj.toLocaleDateString(undefined, {
+          weekday: 'short', month: 'short', day: 'numeric'
+        }) + ' at ' + closeDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      %>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Date</div>
-          <div style="font-size: 1rem; font-weight: 700; color: #fff;"><%= formattedDate %></div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Match Schedule</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #fff;"><%= formattedDate %></div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Starts at <%= session.time.substring(0, 5) %></div>
         </div>
         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Time</div>
-          <div style="font-size: 1rem; font-weight: 700; color: #fff;"><%= session.time.substring(0, 5) %></div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Registration Deadline</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: <%= isClosed ? '#ef4444' : '#fbbf24' %>;"><%= formattedClose %></div>
+          <div style="font-size: 0.8rem; color: <%= isClosed ? '#ef4444' : '#34d399' %>;">
+            <%= isClosed ? '⛔ Join Window Closed' : '🟢 Registration Open' %>
+          </div>
         </div>
         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
           <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Organizer</div>
-          <div style="font-size: 1rem; font-weight: 700; color: #fff;"><%= session.creator ? session.creator.fullName : 'Player' %></div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #fff;"><%= session.creator ? session.creator.fullName : 'Player' %></div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);"><%= session.creator ? session.creator.email : '' %></div>
         </div>
         <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
           <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.25rem;">Capacity</div>
-          <div style="font-size: 1rem; font-weight: 700; color: <%= isFull ? '#ef4444' : '#34d399' %>;">
+          <div style="font-size: 1rem; font-weight: 700; color: <%= isFull ? '#ef4444' : '#f87171' %>;">
             <%= playerCount %> / <%= session.max_players %> Spots
           </div>
+          <div style="font-size: 0.8rem; color: var(--text-dim);"><%= Math.max(0, session.max_players - playerCount) %> spots left</div>
         </div>
       </div>
 
@@ -78,12 +91,16 @@
           </div>
         <% } else if (currentUser && currentUser.role === 'player') { %>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <% if (!isCreator && !isJoined && !isFull) { %>
+            <% if (!isCreator && !isJoined && !isFull && !isClosed) { %>
               <form action="/sessions/<%= session.id %>/join" method="POST">
                 <button type="submit" class="btn btn-primary btn-lg">
                   Join This Session
                 </button>
               </form>
+            <% } else if (!isCreator && !isJoined && isClosed) { %>
+              <button class="btn btn-secondary btn-lg" disabled style="opacity: 0.6; cursor: not-allowed;">
+                ⛔ Registration Closed (Deadline Expired)
+              </button>
             <% } else if (!isCreator && isJoined) { %>
               <form action="/sessions/<%= session.id %>/leave" method="POST">
                 <button 

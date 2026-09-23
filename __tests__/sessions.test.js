@@ -216,4 +216,40 @@ describe('Player Sessions & Join Rules Suite', () => {
     expect(p2JoinedRes.status).toBe(200);
     expect(p2JoinedRes.text).toContain('Separation Arena');
   });
+
+  it('should support dedicated /sessions/my and /sessions/joined routes', async () => {
+    const myRes = await player1Agent.get('/sessions/my');
+    expect(myRes.status).toBe(302);
+    expect(myRes.headers.location).toContain('filter=my');
+
+    const joinedRes = await player1Agent.get('/sessions/joined');
+    expect(joinedRes.status).toBe(302);
+    expect(joinedRes.headers.location).toContain('filter=joined');
+  });
+
+  it('should block joining a session when registration deadline has passed', async () => {
+    // Session whose closing deadline was yesterday
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const session = await Session.create({
+      sport_id: sport.id,
+      creator_id: player1.id,
+      date: '2026-12-01',
+      time: '18:00',
+      venue: 'Closed Deadline Arena',
+      max_players: 10,
+      registration_deadline: yesterday
+    });
+
+    const joinRes = await player2Agent
+      .post(`/sessions/${session.id}/join`)
+      .send();
+
+    expect(joinRes.status).toBe(302);
+
+    // Player 2 should not be added to SessionPlayers
+    const joined = await SessionPlayer.findOne({
+      where: { session_id: session.id, user_id: player2.id }
+    });
+    expect(joined).toBeNull();
+  });
 });

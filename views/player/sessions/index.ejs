@@ -110,6 +110,11 @@
           weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
         });
         const sportTitle = session.sport ? session.sport.title : 'Sport';
+        const isClosed = session.isRegistrationClosed;
+        const closeDateObj = session.closingDateTime;
+        const formattedClose = closeDateObj.toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric'
+        }) + ' at ' + closeDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       %>
       <div 
         class="card session-item-card" 
@@ -127,7 +132,7 @@
               </span>
               <h3 style="font-size: 1.25rem; color: #fff;"><%= session.venue %></h3>
             </div>
-            <div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
               <% if (isCreator) { %>
                 <span class="role-badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);">
                   Organizer
@@ -136,8 +141,13 @@
                 <span class="role-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35);">
                   Joined
                 </span>
-              <% } else if (isFull) { %>
+              <% } %>
+              <% if (isClosed) { %>
                 <span class="role-badge" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3);">
+                  Join Closed
+                </span>
+              <% } else if (isFull) { %>
+                <span class="role-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
                   Full
                 </span>
               <% } %>
@@ -148,11 +158,13 @@
           <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: var(--text-muted);">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span>🗓️</span>
-              <span><%= formattedDate %></span>
+              <span><strong>Match:</strong> <%= formattedDate %> at <%= session.time.substring(0, 5) %></span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span>⏰</span>
-              <span><%= session.time.substring(0, 5) %></span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: <%= isClosed ? '#ef4444' : '#cbd5e1' %>;">
+              <span>⏳</span>
+              <span>
+                <strong>Join Closes:</strong> <%= formattedClose %>
+              </span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span>👤</span>
