@@ -1,0 +1,103 @@
+<%- include('../layouts/header') %>
+
+<div class="auth-container">
+  <div class="card">
+    <div class="auth-header">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join the sports community or manage athletic programs</p>
+    </div>
+
+    <form action="/signup" method="POST" novalidate>
+      <div class="form-group">
+        <label for="first_name" class="form-label">First Name *</label>
+        <input 
+          type="text" 
+          id="first_name" 
+          name="first_name" 
+          class="form-control" 
+          value="<%= (formData && formData.first_name) || '' %>" 
+          placeholder="e.g. Alex"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="last_name" class="form-label">Last Name (Optional)</label>
+        <input 
+          type="text" 
+          id="last_name" 
+          name="last_name" 
+          class="form-control" 
+          value="<%= (formData && formData.last_name) || '' %>" 
+          placeholder="e.g. Morgan"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address *</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          value="<%= (formData && formData.email) || '' %>" 
+          placeholder="alex@example.com"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password * (Minimum 6 characters)</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="••••••••"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Select Account Role *</label>
+        <div class="role-selector">
+          <label class="role-option">
+            <input 
+              type="radio" 
+              name="role" 
+              value="player" 
+              <%= (!formData || !formData.role || formData.role === 'player') ? 'checked' : '' %>
+            >
+            <div class="role-card">
+              <div class="role-title">🏃 Player</div>
+              <div class="role-desc">Create & join sessions, play matches</div>
+            </div>
+          </label>
+
+          <label class="role-option">
+            <input 
+              type="radio" 
+              name="role" 
+              value="admin" 
+              <%= (formData && formData.role === 'admin') ? 'checked' : '' %>
+            >
+            <div class="role-card">
+              <div class="role-title">🛡️ Admin</div>
+              <div class="role-desc">Manage sports & view session reports</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top: 1.5rem;">
+        Complete Registration
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/login">Sign in here</a>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,56 @@
+<%- include('../../layouts/header') %>
+
+<div style="max-width: 600px; margin: 2rem auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/sports" style="color: var(--text-muted); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+      &larr; Back to Sports Catalog
+    </a>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom: 1.75rem;">
+      <h1 style="font-size: 1.85rem; margin-bottom: 0.4rem;">Add New Sport</h1>
+      <p style="color: var(--text-muted); font-size: 0.925rem;">
+        Define a new athletic sport that players can choose when scheduling matches.
+      </p>
+    </div>
+
+    <form action="/sports" method="POST" novalidate>
+      <div class="form-group">
+        <label for="title" class="form-label">Sport Title *</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title" 
+          class="form-control" 
+          value="<%= (formData && formData.title) || '' %>"
+          placeholder="e.g. Basketball, Football, Tennis, Badminton"
+          required
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Description &amp; Guidelines (Optional)</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Provide general rules, required equipment, or standard team sizes..."
+        ><%= (formData && formData.description) || '' %></textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary btn-full">
+          Create Sport
+        </button>
+        <a href="/sports" class="btn btn-secondary" style="flex: 0 0 auto;">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../../layouts/footer') %>

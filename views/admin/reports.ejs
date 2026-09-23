@@ -1,0 +1,140 @@
+<%- include('../layouts/header') %>
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Administrative Reports</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Audit matches, track sports activity, and inspect player participation metrics.
+    </p>
+  </div>
+  <a href="/sports" class="btn btn-secondary">
+    Manage Sports Catalog
+  </a>
+</div>
+
+<!-- High-Level Metric Tiles -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem;">Total Sessions</div>
+    <div style="font-size: 2.25rem; font-weight: 800; color: #fff;"><%= totalSessions %></div>
+    <div style="font-size: 0.8rem; color: #34d399; margin-top: 0.25rem;">Organized across all sports</div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem;">Active Sports</div>
+    <div style="font-size: 2.25rem; font-weight: 800; color: #fff;"><%= totalSports %></div>
+    <div style="font-size: 0.8rem; color: #38bdf8; margin-top: 0.25rem;">In catalog</div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem;">Total Participations</div>
+    <div style="font-size: 2.25rem; font-weight: 800; color: #fff;"><%= totalJoins %></div>
+    <div style="font-size: 0.8rem; color: #a78bfa; margin-top: 0.25rem;">Players registered in games</div>
+  </div>
+
+  <div class="card" style="padding: 1.25rem;">
+    <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem;">Avg Players / Game</div>
+    <div style="font-size: 2.25rem; font-weight: 800; color: #fff;"><%= avgPlayers %></div>
+    <div style="font-size: 0.8rem; color: #fbbf24; margin-top: 0.25rem;">Engagement rate</div>
+  </div>
+</div>
+
+<!-- Sessions Report Table -->
+<div class="card" style="overflow-x: auto; padding: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+    <h2 style="font-size: 1.35rem; color: #fff;">Activity Log &amp; Match Rosters</h2>
+
+    <!-- Filter by Sport -->
+    <form action="/reports" method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="sport" class="form-control" style="width: auto; padding: 0.4rem 0.85rem; font-size: 0.85rem;" onchange="this.form.submit()">
+        <option value="">All Sports</option>
+        <% sports.forEach(sport => { %>
+          <option value="<%= sport.id %>" <%= selectedSport == sport.id ? 'selected' : '' %>>
+            <%= sport.title %>
+          </option>
+        <% }) %>
+      </select>
+      <% if (selectedSport) { %>
+        <a href="/reports" class="btn btn-secondary btn-sm">Clear</a>
+      <% } %>
+    </form>
+  </div>
+
+  <% if (!sessions || sessions.length === 0) { %>
+    <p style="text-align: center; color: var(--text-dim); padding: 3rem 0;">
+      No session records found matching the current criteria.
+    </p>
+  <% } else { %>
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-dim); text-transform: uppercase; font-size: 0.75rem;">
+          <th style="padding: 0.85rem 0.5rem;">Sport</th>
+          <th style="padding: 0.85rem 0.5rem;">Schedule &amp; Venue</th>
+          <th style="padding: 0.85rem 0.5rem;">Organizer</th>
+          <th style="padding: 0.85rem 0.5rem;">Attendance</th>
+          <th style="padding: 0.85rem 0.5rem;">Roster Players</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sessions.forEach(session => { %>
+          <% 
+            const formattedDate = new Date(session.date + 'T00:00:00').toLocaleDateString(undefined, {
+              month: 'short', day: 'numeric', year: 'numeric'
+            });
+            const playerCount = session.players ? session.players.length : 0;
+            const isPast = new Date(session.date + 'T' + session.time) < new Date();
+          %>
+          <tr style="border-bottom: 1px solid var(--border-color); vertical-align: top;">
+            <td style="padding: 1rem 0.5rem;">
+              <span class="role-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <%= session.sport ? session.sport.title : 'Sport' %>
+              </span>
+              <% if (isPast) { %>
+                <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.35rem;">[Past Event]</div>
+              <% } else { %>
+                <div style="font-size: 0.7rem; color: #38bdf8; margin-top: 0.35rem;">[Upcoming]</div>
+              <% } %>
+            </td>
+
+            <td style="padding: 1rem 0.5rem;">
+              <div style="font-weight: 600; color: #fff;"><%= session.venue %></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                <%= formattedDate %> at <%= session.time.substring(0, 5) %>
+              </div>
+            </td>
+
+            <td style="padding: 1rem 0.5rem;">
+              <div style="font-weight: 600; color: #cbd5e1;"><%= session.creator ? session.creator.fullName : 'Unknown' %></div>
+              <div style="font-size: 0.75rem; color: var(--text-dim);"><%= session.creator ? session.creator.email : '' %></div>
+            </td>
+
+            <td style="padding: 1rem 0.5rem;">
+              <span style="font-weight: 700; color: <%= playerCount >= session.max_players ? '#ef4444' : '#34d399' %>;">
+                <%= playerCount %> / <%= session.max_players %>
+              </span>
+            </td>
+
+            <td style="padding: 1rem 0.5rem;">
+              <% if (!session.players || session.players.length === 0) { %>
+                <span style="color: var(--text-dim); font-size: 0.8rem;">No players joined</span>
+              <% } else { %>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                  <% session.players.forEach(p => { %>
+                    <span 
+                      style="display: inline-block; font-size: 0.75rem; padding: 0.2rem 0.5rem; background: rgba(255, 255, 255, 0.06); border-radius: 4px; color: #e2e8f0;"
+                      title="<%= p.email %>"
+                    >
+                      <%= p.fullName %> <%= p.id === session.creator_id ? '(Host)' : '' %>
+                    </span>
+                  <% }) %>
+                </div>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../layouts/footer') %>

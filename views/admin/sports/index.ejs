@@ -1,0 +1,62 @@
+<%- include('../../layouts/header') %>
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Sports Management</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Curate and maintain the athletic sports catalog available for player sessions.
+    </p>
+  </div>
+  <a href="/sports/new" class="btn btn-primary">
+    <span>+ Add New Sport</span>
+  </a>
+</div>
+
+<% if (!sports || sports.length === 0) { %>
+  <div class="card" style="text-align: center; padding: 3.5rem 1.5rem;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🏀</div>
+    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Sports Registered Yet</h2>
+    <p style="color: var(--text-muted); max-width: 450px; margin: 0 auto 1.5rem;">
+      Create the first sport category so players can start scheduling games and matches.
+    </p>
+    <a href="/sports/new" class="btn btn-primary">Create Your First Sport</a>
+  </div>
+<% } else { %>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+    <% sports.forEach(sport => { %>
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.35rem; color: #fff;"><%= sport.title %></h3>
+            <span class="role-badge" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3);">
+              <%= sport.sessions ? sport.sessions.length : 0 %> Sessions
+            </span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; min-height: 40px;">
+            <%= sport.description || 'No description provided for this sport.' %>
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+          <span style="font-size: 0.8rem; color: var(--text-dim);">
+            Created <%= new Date(sport.createdAt).toLocaleDateString() %>
+          </span>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/sports/<%= sport.id %>/edit" class="btn btn-secondary btn-sm">Edit</a>
+            <form action="/sports/<%= sport.id %>/delete" method="POST" style="display: inline;">
+              <button 
+                type="submit" 
+                class="btn btn-danger btn-sm" 
+                data-confirm="Are you sure you want to delete <%= sport.title %>? Any linked sessions will also be removed."
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('../../layouts/footer') %>

@@ -1,0 +1,15 @@
+<%- include('layouts/header') %>
+
+<div class="card" style="max-width: 600px; margin: 4rem auto; text-align: center;">
+  <div style="font-size: 3.5rem; margin-bottom: 1rem;">⚠️ 500</div>
+  <h1 style="font-size: 2rem; margin-bottom: 1rem;">Internal Server Error</h1>
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">
+    Something went wrong on our end. Please try again later.
+  </p>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <pre style="text-align: left; background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 8px; overflow-x: auto; color: #fca5a5; font-size: 0.85rem; margin-bottom: 1.5rem;"><%= error.stack %></pre>
+  <% } %>
+  <a href="/" class="btn btn-primary">Return Home</a>
+</div>
+
+<%- include('layouts/footer') %>

@@ -1,0 +1,64 @@
+<%- include('layouts/header') %>
+
+<section class="hero">
+  <div class="hero-badge">⚡ The Next-Gen Match Organizer</div>
+  <h1 class="hero-title">Connect, Schedule &amp; <span>Play Your Favorite Sports</span></h1>
+  <p class="hero-subtitle">
+    A centralized sports scheduler built for modern athletes and program administrators. Create games, join open rosters, and track activity seamlessly.
+  </p>
+  <div class="hero-actions">
+    <a href="/signup" class="btn btn-primary btn-lg">Get Started Free</a>
+    <a href="/login" class="btn btn-secondary btn-lg">Sign In to Account</a>
+  </div>
+</section>
+
+<div class="stats-banner">
+  <div class="stat-item">
+    <div class="stat-value"><%= typeof sportsCount !== 'undefined' ? sportsCount : 0 %></div>
+    <div class="stat-label">Sports Catalog</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value"><%= typeof sessionsCount !== 'undefined' ? sessionsCount : 0 %></div>
+    <div class="stat-label">Active Sessions</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">100%</div>
+    <div class="stat-label">Role-Secured</div>
+  </div>
+</div>
+
+<div class="features-grid">
+  <div class="feature-card">
+    <div class="feature-icon">🏀</div>
+    <h3 class="feature-title">Dynamic Sports Catalog</h3>
+    <p class="feature-desc">
+      Administrators curate sports categories with custom descriptions, rules, and constraints to standardize play across all venues.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📅</div>
+    <h3 class="feature-title">Effortless Match Scheduling</h3>
+    <p class="feature-desc">
+      Players can set up sessions by date, time, and venue. Each creator maintains full control over their game's capacity and schedule.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">👥</div>
+    <h3 class="feature-title">Real-Time Rosters</h3>
+    <p class="feature-desc">
+      Discover matches, join open spots with one click, and see who's playing. Duplicate joins are automatically prevented at both app and database levels.
+    </p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3 class="feature-title">Admin Oversight &amp; Reports</h3>
+    <p class="feature-desc">
+      Comprehensive reports allow athletic directors and club managers to review historical play metrics and participant turnout.
+    </p>
+  </div>
+</div>
+
+<%- include('layouts/footer') %>

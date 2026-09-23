@@ -1,0 +1,110 @@
+<%- include('../../layouts/header') %>
+
+<div style="max-width: 650px; margin: 2rem auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="/sessions" style="color: var(--text-muted); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+      &larr; Back to Sessions
+    </a>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom: 2rem;">
+      <h1 style="font-size: 1.85rem; margin-bottom: 0.4rem;">Host a Sports Session</h1>
+      <p style="color: var(--text-muted); font-size: 0.925rem;">
+        Pick a sport, set the schedule and location, and invite other players to join.
+      </p>
+    </div>
+
+    <% if (!sports || sports.length === 0) { %>
+      <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 1.25rem; color: #fbbf24; text-align: center;">
+        <p style="margin-bottom: 0.5rem; font-weight: 600;">⚠️ No sports available yet</p>
+        <p style="font-size: 0.85rem;">An Administrator must first set up sport categories before sessions can be scheduled.</p>
+      </div>
+    <% } else { %>
+      <form action="/sessions" method="POST" novalidate>
+        <div class="form-group">
+          <label for="sport_id" class="form-label">Sport Category *</label>
+          <select id="sport_id" name="sport_id" class="form-control" required>
+            <option value="">-- Select a Sport --</option>
+            <% sports.forEach(sport => { %>
+              <option 
+                value="<%= sport.id %>" 
+                <%= (formData && formData.sport_id == sport.id) ? 'selected' : '' %>
+              >
+                <%= sport.title %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="date" class="form-label">Date *</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date" 
+              class="form-control" 
+              value="<%= (formData && formData.date) || '' %>"
+              min="<%= new Date().toISOString().split('T')[0] %>"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="time" class="form-label">Time *</label>
+            <input 
+              type="time" 
+              id="time" 
+              name="time" 
+              class="form-control" 
+              value="<%= (formData && formData.time) || '' %>"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="venue" class="form-label">Venue / Court / Ground Name *</label>
+          <input 
+            type="text" 
+            id="venue" 
+            name="venue" 
+            class="form-control" 
+            value="<%= (formData && formData.venue) || '' %>"
+            placeholder="e.g. Downtown Sports Arena - Court 3"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="max_players" class="form-label">Maximum Player Capacity * (Min: 2)</label>
+          <input 
+            type="number" 
+            id="max_players" 
+            name="max_players" 
+            class="form-control" 
+            min="2" 
+            max="100"
+            value="<%= (formData && formData.max_players) || 10 %>"
+            required
+          >
+          <small style="color: var(--text-dim); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
+            You will automatically be registered as the session organizer and first player.
+          </small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <button type="submit" class="btn btn-primary btn-full">
+            Schedule Match
+          </button>
+          <a href="/sessions" class="btn btn-secondary" style="flex: 0 0 auto;">
+            Cancel
+          </a>
+        </div>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../../layouts/footer') %>
