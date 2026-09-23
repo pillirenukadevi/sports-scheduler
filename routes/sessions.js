@@ -45,7 +45,7 @@ router.get('/', async (req, res, next) => {
 
     if (filter === 'joined' && req.user) {
       sessions = sessions.filter(
-        (s) => s.players && s.players.some((p) => p.id === req.user.id)
+        (s) => s.creator_id !== req.user.id && s.players && s.players.some((p) => p.id === req.user.id)
       );
     }
 

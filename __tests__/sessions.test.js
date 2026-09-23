@@ -184,4 +184,36 @@ describe('Player Sessions & Join Rules Suite', () => {
     expect(searchRes.text).toContain('Wimbledon Center Court');
     expect(searchRes.text).toContain('Tennis');
   });
+
+  it('should strictly separate hosted matches and joined matches', async () => {
+    // Player 1 hosts a session
+    const session = await Session.create({
+      sport_id: sport.id,
+      creator_id: player1.id,
+      date: '2026-11-10',
+      time: '18:00',
+      venue: 'Separation Arena',
+      max_players: 10
+    });
+    // Creator is on roster
+    await SessionPlayer.create({ session_id: session.id, user_id: player1.id });
+
+    // Player 2 joins Player 1's session
+    await SessionPlayer.create({ session_id: session.id, user_id: player2.id });
+
+    // 1. Player 1 checks "Joined Matches" (filter=joined) -> should NOT include the match they hosted
+    const p1JoinedRes = await player1Agent.get('/sessions?filter=joined');
+    expect(p1JoinedRes.status).toBe(200);
+    expect(p1JoinedRes.text).not.toContain('Separation Arena');
+
+    // 2. Player 1 checks "Hosted By Me" (filter=my) -> SHOULD include the match
+    const p1HostedRes = await player1Agent.get('/sessions?filter=my');
+    expect(p1HostedRes.status).toBe(200);
+    expect(p1HostedRes.text).toContain('Separation Arena');
+
+    // 3. Player 2 checks "Joined Matches" (filter=joined) -> SHOULD include Player 1's match
+    const p2JoinedRes = await player2Agent.get('/sessions?filter=joined');
+    expect(p2JoinedRes.status).toBe(200);
+    expect(p2JoinedRes.text).toContain('Separation Arena');
+  });
 });
