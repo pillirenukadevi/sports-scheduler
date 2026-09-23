@@ -2,10 +2,22 @@
 
 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
   <div>
-    <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Browse Sports Sessions</h1>
-    <p style="color: var(--text-muted); font-size: 0.95rem;">
-      Find upcoming matches, search games by sport or venue, and join open rosters.
-    </p>
+    <% if (selectedTab === 'my') { %>
+      <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">🎯 Matches Hosted By Me</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Manage, review rosters, or cancel sessions that you organized.
+      </p>
+    <% } else if (selectedTab === 'joined') { %>
+      <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">🏃 Matches Joined By Me</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        View upcoming game schedules where you are enrolled as a player.
+      </p>
+    <% } else { %>
+      <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Browse Sports Sessions</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Find upcoming matches, search games by sport or venue, and join open rosters.
+      </p>
+    <% } %>
   </div>
   <% if (currentUser && currentUser.role === 'player') { %>
     <a href="/sessions/new" class="btn btn-primary">
@@ -42,25 +54,11 @@
 <!-- Sports Filter Bar -->
 <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.75rem; margin-bottom: 1.75rem;">
   <a 
-    href="/sessions<%= typeof searchQuery !== 'undefined' && searchQuery ? '?search=' + encodeURIComponent(searchQuery) : '' %>" 
-    class="btn btn-sm <%= !selectedSport && !selectedTab ? 'btn-primary' : 'btn-secondary' %>"
+    href="/sessions<%= typeof searchQuery !== 'undefined' && searchQuery ? '?search=' + encodeURIComponent(searchQuery) : (selectedTab ? '?filter=' + selectedTab : '') %>" 
+    class="btn btn-sm <%= !selectedSport ? 'btn-primary' : 'btn-secondary' %>"
   >
     All Sports
   </a>
-  <% if (currentUser && currentUser.role === 'player') { %>
-    <a 
-      href="/sessions?filter=my<%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
-      class="btn btn-sm <%= selectedTab === 'my' ? 'btn-primary' : 'btn-secondary' %>"
-    >
-      🎯 Hosted By Me
-    </a>
-    <a 
-      href="/sessions?filter=joined<%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" 
-      class="btn btn-sm <%= selectedTab === 'joined' ? 'btn-primary' : 'btn-secondary' %>"
-    >
-      🏃 Joined By Me
-    </a>
-  <% } %>
   <% if (sports && sports.length > 0) { %>
     <% sports.forEach(sport => { %>
       <a 
