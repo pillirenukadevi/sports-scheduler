@@ -100,6 +100,13 @@ module.exports = (sequelize, DataTypes) => {
           this.setDataValue('venue', value ? value.trim() : value);
         }
       },
+      address: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue('address', value ? value.trim() : value);
+        }
+      },
       max_players: {
         type: DataTypes.INTEGER,
         allowNull: false,

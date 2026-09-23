@@ -26,6 +26,7 @@ router.get('/', async (req, res, next) => {
       const q = search.trim();
       whereClause[Op.or] = [
         { venue: { [Op.iLike || Op.like]: `%${q}%` } },
+        { address: { [Op.iLike || Op.like]: `%${q}%` } },
         { '$sport.title$': { [Op.iLike || Op.like]: `%${q}%` } }
       ];
     }
@@ -94,7 +95,7 @@ router.get('/new', requirePlayer, async (req, res, next) => {
 
 // POST /sessions - Create new session
 router.post('/', requirePlayer, async (req, res) => {
-  const { sport_id, date, time, venue, max_players, close_date, close_time } = req.body;
+  const { sport_id, date, time, venue, address, max_players, close_date, close_time } = req.body;
 
   try {
     let registration_deadline = null;
@@ -112,6 +113,7 @@ router.post('/', requirePlayer, async (req, res) => {
       date,
       time,
       venue,
+      address,
       max_players: max_players ? parseInt(max_players, 10) : 10,
       registration_deadline
     });
@@ -133,7 +135,7 @@ router.post('/', requirePlayer, async (req, res) => {
       req.flash('error', 'Could not create session. Please verify all required fields.');
     }
 
-    req.flash('formData', { sport_id, date, time, venue, max_players, close_date, close_time });
+    req.flash('formData', { sport_id, date, time, venue, address, max_players, close_date, close_time });
     return res.redirect('/sessions/new');
   }
 });

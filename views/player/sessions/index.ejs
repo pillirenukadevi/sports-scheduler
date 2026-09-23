@@ -172,6 +172,36 @@
             </div>
           </div>
 
+          <!-- Dedicated Address & Location Section -->
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 1.15rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem;">
+              <span style="font-size: 1.1rem; line-height: 1.2; flex-shrink: 0; color: #f87171;">📍</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.15rem;">
+                  Address &amp; Location
+                </div>
+                <div style="font-weight: 600; color: #fff; font-size: 0.9rem;">
+                  <%= session.venue %>
+                </div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; word-break: break-word; margin-top: 0.2rem; line-height: 1.4;">
+                  <% if (session.address && session.address.trim()) { %>
+                    <%= session.address %>
+                  <% } else { %>
+                    <span style="color: var(--text-dim); font-style: italic;">Standard ground address at venue. Check details for directions.</span>
+                  <% } %>
+                </div>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(session.venue + (session.address ? ' ' + session.address : '')) %>" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; color: #f87171; text-decoration: none; margin-top: 0.35rem; font-weight: 600;"
+                >
+                  🗺️ Open in Google Maps &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+
           <!-- Roster Capacity Bar -->
           <div style="margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">

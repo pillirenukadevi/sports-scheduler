@@ -112,6 +112,20 @@
         </div>
 
         <div class="form-group">
+          <label for="address" class="form-label">Full Venue Address &amp; Directions (Optional)</label>
+          <textarea 
+            id="address" 
+            name="address" 
+            class="form-control" 
+            rows="2"
+            placeholder="e.g. 102 Stadium Boulevard, Near Central Gate, Sector 4, Bangalore"
+          ><%= (formData && formData.address) || '' %></textarea>
+          <small style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-top: 0.35rem;">
+            Helps players easily navigate and reach the sports ground on match day.
+          </small>
+        </div>
+
+        <div class="form-group">
           <label for="max_players" class="form-label">Maximum Player Capacity * (Min: 2)</label>
           <input 
             type="number" 

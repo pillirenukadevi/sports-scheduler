@@ -23,7 +23,7 @@
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
         <div>
-          <span class="role-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 0.5rem;">
+          <span class="role-badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); margin-bottom: 0.5rem;">
             <%= session.sport ? session.sport.title : 'Sport' %>
           </span>
           <h1 style="font-size: 2rem; color: #fff; line-height: 1.2;"><%= session.venue %></h1>
@@ -32,11 +32,11 @@
         <div>
           <% if (isCreator) { %>
             <span class="role-badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);">
-              You are Organizer
+              🎯 Hosted By You
             </span>
           <% } else if (isJoined) { %>
-            <span class="role-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3);">
-              You are Joined
+            <span class="role-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35);">
+              🏃 Joined Match
             </span>
           <% } %>
         </div>
@@ -80,6 +80,43 @@
             <%= playerCount %> / <%= session.max_players %> Spots
           </div>
           <div style="font-size: 0.8rem; color: var(--text-dim);"><%= Math.max(0, session.max_players - playerCount) %> spots left</div>
+        </div>
+      </div>
+
+      <!-- Dedicated Venue & Address Details Section -->
+      <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-md); padding: 1.35rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; text-transform: uppercase; color: #f87171; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+              <span>📍</span> Venue &amp; Ground Address
+            </div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">
+              <%= session.venue %>
+            </div>
+          </div>
+          <a 
+            href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(session.venue + (session.address ? ' ' + session.address : '')) %>" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="btn btn-secondary btn-sm"
+            style="gap: 0.4rem; border-color: rgba(239, 68, 68, 0.4); color: #f87171;"
+          >
+            🗺️ Open in Google Maps &rarr;
+          </a>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.5; background: rgba(0, 0, 0, 0.35); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; font-weight: 600;">
+            Full Address &amp; Directions
+          </div>
+          <div style="color: #fff; font-weight: 500;">
+            <% if (session.address && session.address.trim()) { %>
+              <%= session.address %>
+            <% } else { %>
+              <span style="color: var(--text-dim); font-style: italic;">
+                Ground address provided at venue (<%= session.venue %>). Click "Open in Google Maps" above for direct satellite navigation.
+              </span>
+            <% } %>
+          </div>
         </div>
       </div>
 

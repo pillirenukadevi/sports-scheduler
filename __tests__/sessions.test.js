@@ -252,4 +252,39 @@ describe('Player Sessions & Join Rules Suite', () => {
     });
     expect(joined).toBeNull();
   });
+
+  it('should display the address section on hosted matches, joined matches, and session details', async () => {
+    const addressStr = '123 Olympic Boulevard, Court 7, Metro Sports Complex';
+    const session = await Session.create({
+      sport_id: sport.id,
+      creator_id: player1.id,
+      date: '2026-11-20',
+      time: '19:30',
+      venue: 'Olympic Indoor Stadium',
+      address: addressStr,
+      max_players: 8
+    });
+    await SessionPlayer.create({ session_id: session.id, user_id: player1.id });
+    await SessionPlayer.create({ session_id: session.id, user_id: player2.id });
+
+    // 1. Host sees address on "Hosted By Me"
+    const hostRes = await player1Agent.get('/sessions?filter=my');
+    expect(hostRes.status).toBe(200);
+    expect(hostRes.text).toContain(addressStr);
+    expect(hostRes.text).toContain('Address &amp; Location');
+
+    // 2. Joined player sees address on "Joined Matches"
+    const joinRes = await player2Agent.get('/sessions?filter=joined');
+    expect(joinRes.status).toBe(200);
+    expect(joinRes.text).toContain(addressStr);
+    expect(joinRes.text).toContain('Address &amp; Location');
+
+    // 3. Match Details page displays address & directions with maps link
+    const detailsRes = await player2Agent.get(`/sessions/${session.id}`);
+    expect(detailsRes.status).toBe(200);
+    expect(detailsRes.text).toContain(addressStr);
+    expect(detailsRes.text).toContain('Venue &amp; Ground Address');
+    expect(detailsRes.text).toContain('Open in Google Maps');
+  });
 });
+
