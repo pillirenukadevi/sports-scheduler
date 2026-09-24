@@ -26,6 +26,19 @@
   <% } %>
 </div>
 
+<!-- Dashboard View Mode Tabs -->
+<div style="display: flex; gap: 0.6rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+  <a href="/sessions" class="btn btn-sm <%= !selectedTab ? 'btn-primary' : 'btn-secondary' %>" style="border-radius: 9999px; padding: 0.4rem 1rem;">
+    🌐 Browse All Matches
+  </a>
+  <a href="/sessions/joined" class="btn btn-sm <%= selectedTab === 'joined' ? 'btn-primary' : 'btn-secondary' %>" style="border-radius: 9999px; padding: 0.4rem 1rem;">
+    🏃 Joined Matches
+  </a>
+  <a href="/sessions/my" class="btn btn-sm <%= selectedTab === 'my' ? 'btn-primary' : 'btn-secondary' %>" style="border-radius: 9999px; padding: 0.4rem 1rem;">
+    🎯 Hosted By Me
+  </a>
+</div>
+
 <!-- Search Bar Component -->
 <form action="/sessions" method="GET" class="search-container" id="sessionSearchForm">
   <div class="search-input-wrapper">
