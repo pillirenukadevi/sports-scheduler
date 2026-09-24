@@ -4,12 +4,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "build": "npx sequelize-cli db:migrate",
+    "build": "npx sequelize-cli db:migrate && node config/seedData.js",
     "dev": "nodemon app.js",
     "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles --forceExit",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:prod": "npx sequelize-cli db:migrate --env production",
-    "db:migrate:undo": "npx sequelize-cli db:migrate:undo"
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "db:seed": "node config/seedData.js"
   },
   "jest": {
     "testMatch": [

@@ -123,6 +123,12 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
+// Auto-seed sports catalog and sample games on startup if database is empty
+if (process.env.NODE_ENV !== 'test') {
+  const { seedDatabase } = require('./config/seedData');
+  seedDatabase().catch((err) => console.log('Auto-seed notification:', err.message));
+}
+
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Sports Scheduler server is running on port ${PORT}`);
