@@ -7,6 +7,11 @@ require('dotenv').config();
 
 const app = express();
 
+// Trust reverse proxy (Vercel) for HTTPS cookies & client IP
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+  app.set('trust proxy', 1);
+}
+
 // View Engine Setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -26,9 +31,12 @@ if (process.env.NODE_ENV === 'test') {
   const pgSession = require('connect-pg-simple')(session);
   const sessionConfig = process.env.DATABASE_URL
     ? {
-        conString: process.env.DATABASE_URL,
+        conObject: {
+          connectionString: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false }
+        },
         createTableIfMissing: true,
-        ssl: { rejectUnauthorized: false }
+        pruneSessionInterval: process.env.VERCEL ? false : 60
       }
     : {
         conObject: {
@@ -52,7 +60,8 @@ app.use(
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production'
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     }
   })
 );
@@ -103,7 +112,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-if (require.main === module) {
+if (require.main === module && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Sports Scheduler server is running on http://localhost:${PORT}`);
   });
