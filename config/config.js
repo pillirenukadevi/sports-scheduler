@@ -38,14 +38,16 @@ module.exports = {
   production: {
     use_env_variable: 'DATABASE_URL',
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
+    dialectOptions: process.env.DB_SSL === 'false'
+      ? {}
+      : {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
+        },
     pool: {
-      max: 5,
+      max: 10,
       min: 0,
       acquire: 30000,
       idle: 10000

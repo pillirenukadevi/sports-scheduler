@@ -7,8 +7,8 @@ require('dotenv').config();
 
 const app = express();
 
-// Trust reverse proxy (Vercel) for HTTPS cookies & client IP
-if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+// Trust reverse proxy (Render) for HTTPS cookies & client IP
+if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
@@ -33,10 +33,10 @@ if (process.env.NODE_ENV === 'test') {
     ? {
         conObject: {
           connectionString: process.env.DATABASE_URL,
-          ssl: { rejectUnauthorized: false }
+          ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false }
         },
         createTableIfMissing: true,
-        pruneSessionInterval: process.env.VERCEL ? false : 60
+        pruneSessionInterval: 60
       }
     : {
         conObject: {
@@ -85,6 +85,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint for Render / monitoring
+app.get('/health', async (req, res) => {
+  try {
+    const { sequelize } = require('./models');
+    await sequelize.authenticate();
+    res.status(200).json({ status: 'ok', uptime: Math.floor(process.uptime()), timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(503).json({ status: 'error', message: 'Database connection failed' });
+  }
+});
+
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/', require('./routes/auth'));
@@ -112,9 +123,9 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-if (require.main === module && !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`Sports Scheduler server is running on http://localhost:${PORT}`);
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Sports Scheduler server is running on port ${PORT}`);
   });
 }
 

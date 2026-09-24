@@ -4,6 +4,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "build": "npx sequelize-cli db:migrate",
     "dev": "nodemon app.js",
     "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles --forceExit",
     "db:migrate": "npx sequelize-cli db:migrate",
